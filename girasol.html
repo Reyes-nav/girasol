@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌹 Una Rosa Para Nancy 🌹</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0000 0%, #4a0000 50%, #1a0000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .greeting {
+            color: #FF1493;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(255, 0, 0, 0.5);
+            animation: fadeIn 1.5s ease-in;
+            font-weight: bold;
+        }
+
+        .time-info {
+            color: #FFB6C1;
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            animation: fadeIn 2s ease-in;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(255, 0, 0, 0.3);
+            display: inline-block;
+            animation: scaleIn 1.2s ease-out;
+            border: 3px solid rgba(255, 20, 60, 0.3);
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .message {
+            color: #FFB6C1;
+            font-size: 1.8em;
+            margin-top: 30px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 3s ease-in;
+        }
+
+        .subtitle {
+            color: #FFC0CB;
+            font-size: 1.3em;
+            margin-top: 15px;
+            font-style: italic;
+            animation: fadeIn 4s ease-in;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .heart {
+            display: inline-block;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            color: #FF1493;
+        }
+
+        .progress-text {
+            color: #FFB6C1;
+            font-size: 1.1em;
+            margin-top: 15px;
+            min-height: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .greeting {
+                font-size: 1.8em;
+            }
+            .time-info {
+                font-size: 1.1em;
+            }
+            .message {
+                font-size: 1.3em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="greeting" id="greeting">¡Buenos días, Nancy! 🌹</h1>
+        <p class="time-info" id="timeInfo"></p>
+
+        <div class="canvas-container">
+            <canvas id="rosa" width="700" height="800"></canvas>
+        </div>
+
+        <p class="progress-text" id="progressText">Preparando tu rosa...</p>
+        <p class="message">Espero que tu día haya estado de bien <span class="heart">😊</span></p>
+    </div>
+
+    <script>
+        // Obtener hora actual y generar saludo personalizado
+        function obtenerSaludo() {
+            const ahora = new Date();
+            const hora = ahora.getHours();
+            const nombre = "Nancy";
+
+            let saludo = "";
+            let emoji = "";
+
+            if (hora >= 0 && hora < 6) {
+                saludo = `¡Buenas noches, ${nombre}! 🌙`;
+                emoji = "🌙✨";
+            } else if (hora >= 6 && hora < 12) {
+                saludo = `¡Buenos días, ${nombre}! 🌹`;
+                emoji = "🌅☀️";
+            } else if (hora >= 12 && hora < 19) {
+                saludo = `¡Buenas tardes, ${nombre}! 🌹`;
+                emoji = "🌤️🌺";
+            } else {
+                saludo = `¡Buenas noches, ${nombre}! 🌙`;
+                emoji = "🌙⭐";
+            }
+
+            const horaFormateada = ahora.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const fechaFormateada = ahora.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return { saludo, emoji, hora: horaFormateada, fecha: fechaFormateada };
+        }
+
+        // Actualizar saludo
+        const info = obtenerSaludo();
+        document.getElementById('greeting').textContent = info.saludo;
+        document.getElementById('timeInfo').textContent = `${info.fecha} - ${info.hora} ${info.emoji}`;
+
+        // Canvas setup
+        const canvas = document.getElementById('rosa');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = 280;
+
+        // Control de animación
+        let etapaActual = 0;
+        let progresoEtapa = 0;
+        const velocidadAnimacion = 0.02;
+
+        // Función para dibujar un pétalo realista de rosa
+        function dibujarPetaloRealista(x, y, ancho, alto, rotacion, colorBase, opacidad = 1) {
+            ctx.save();
+            ctx.globalAlpha = opacidad;
+            ctx.translate(x, y);
+            ctx.rotate(rotacion);
+
+            // Gradiente radial complejo para simular la curvatura del pétalo
+            const gradientPrincipal = ctx.createRadialGradient(
+                ancho * 0.1, -alto * 0.3, 0,
+                0, -alto * 0.5, alto * 0.8
+            );
+            
+            // Colores más ricos y variados
+            const luminosidad = 1.3;
+            const r = parseInt(colorBase.slice(1, 3), 16);
+            const g = parseInt(colorBase.slice(3, 5), 16);
+            const b = parseInt(colorBase.slice(5, 7), 16);
+            
+            gradientPrincipal.addColorStop(0, `rgba(${Math.min(255, r * luminosidad)}, ${Math.min(255, g * luminosidad)}, ${Math.min(255, b * luminosidad)}, 1)`);
+            gradientPrincipal.addColorStop(0.3, colorBase);
+            gradientPrincipal.addColorStop(0.7, `rgb(${r * 0.7}, ${g * 0.7}, ${b * 0.7})`);
+            gradientPrincipal.addColorStop(1, `rgb(${r * 0.4}, ${g * 0.4}, ${b * 0.4})`);
+
+            ctx.fillStyle = gradientPrincipal;
+
+            // Forma de pétalo más realista con curvas suaves
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            
+            // Lado izquierdo con curva natural
+            ctx.bezierCurveTo(
+                -ancho * 0.6, -alto * 0.2,
+                -ancho * 0.8, -alto * 0.6,
+                -ancho * 0.4, -alto * 0.95
+            );
+            
+            // Parte superior con borde ondulado
+            ctx.bezierCurveTo(
+                -ancho * 0.2, -alto * 1.05,
+                ancho * 0.2, -alto * 1.05,
+                ancho * 0.4, -alto * 0.95
+            );
+            
+            // Lado derecho
+            ctx.bezierCurveTo(
+                ancho * 0.8, -alto * 0.6,
+                ancho * 0.6, -alto * 0.2,
+                0, 0
+            );
+            
+            ctx.closePath();
+            ctx.fill();
+
+            // Sombra en los bordes
+            ctx.strokeStyle = `rgba(${r * 0.3}, ${g * 0.3}, ${b * 0.3}, 0.6)`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Venas del pétalo más sutiles y realistas
+            ctx.globalAlpha = opacidad * 0.25;
+            ctx.strokeStyle = `rgba(${r * 0.5}, ${g * 0.5}, ${b * 0.5}, 0.8)`;
+            ctx.lineWidth = 1.5;
+            
+            // Vena central
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(0, -alto * 0.5, 0, -alto * 0.9);
+            ctx.stroke();
+            
+            // Venas laterales con curva natural
+            for (let i = -2; i <= 2; i++) {
+                if (i === 0) continue;
+                const offsetX = i * ancho * 0.15;
+                const curva = Math.abs(i) * 0.1;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, -alto * 0.1);
+                ctx.quadraticCurveTo(
+                    offsetX, -alto * (0.4 + curva),
+                    offsetX * 0.8, -alto * (0.7 + curva)
+                );
+                ctx.stroke();
+            }
+
+            // Textura sutil del pétalo
+            ctx.globalAlpha = opacidad * 0.1;
+            for (let i = 0; i < 15; i++) {
+                const tx = (Math.random() - 0.5) * ancho * 0.6;
+                const ty = -Math.random() * alto * 0.9;
+                ctx.fillStyle = Math.random() > 0.5 ? 
+                    `rgba(255, 255, 255, ${Math.random() * 0.3})` : 
+                    `rgba(0, 0, 0, ${Math.random() * 0.2})`;
+                ctx.beginPath();
+                ctx.arc(tx, ty, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        // Dibujar capa de pétalos con superposición realista
+        function dibujarCapaPetalos(numPetalos, radio, ancho, alto, rotacionBase, color, opacidad = 1) {
+            const anguloIncremento = (Math.PI * 2) / numPetalos;
+            
+            for (let i = 0; i < numPetalos; i++) {
+                const angulo = i * anguloIncremento + rotacionBase;
+                const x = centerX + Math.cos(angulo) * radio;
+                const y = centerY + Math.sin(angulo) * radio;
+                
+                // Variación ligera en tamaño para más realismo
+                const variacion = 0.9 + Math.random() * 0.2;
+                
+                dibujarPetaloRealista(
+                    x, y,
+                    ancho * variacion,
+                    alto * variacion,
+                    angulo + Math.PI / 2,
+                    color,
+                    opacidad
+                );
+            }
+        }
+
+        // Centro de la rosa más realista
+        function dibujarCentro(opacidad = 1) {
+            ctx.save();
+            ctx.globalAlpha = opacidad;
+
+            // Base del centro con gradiente
+            const gradientCentro = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, 35
+            );
+            gradientCentro.addColorStop(0, '#FFE135');
+            gradientCentro.addColorStop(0.6, '#FFC125');
+            gradientCentro.addColorStop(1, '#CD9B1D');
+
+            ctx.fillStyle = gradientCentro;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Estambres del centro
+            ctx.globalAlpha = opacidad * 0.8;
+            const numEstambres = 40;
+            for (let i = 0; i < numEstambres; i++) {
+                const angulo = (i / numEstambres) * Math.PI * 2;
+                const distancia = 8 + Math.random() * 20;
+                const x = centerX + Math.cos(angulo) * distancia;
+                const y = centerY + Math.sin(angulo) * distancia;
+
+                // Estambre
+                ctx.strokeStyle = '#8B6914';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+
+                // Antera (punta del estambre)
+                const gradientAntera = ctx.createRadialGradient(x, y, 0, x, y, 3);
+                gradientAntera.addColorStop(0, '#FFD700');
+                gradientAntera.addColorStop(1, '#DAA520');
+                
+                ctx.fillStyle = gradientAntera;
+                ctx.beginPath();
+                ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Pistilo central
+            ctx.globalAlpha = opacidad;
+            const gradientPistilo = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, 12
+            );
+            gradientPistilo.addColorStop(0, '#9ACD32');
+            gradientPistilo.addColorStop(1, '#6B8E23');
+            
+            ctx.fillStyle = gradientPistilo;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Dibujar tallo con más detalle
+        function dibujarTallo(opacidad = 1) {
+            ctx.save();
+            ctx.globalAlpha = opacidad;
+
+            const inicioY = centerY + 90;
+            const finY = canvas.height - 50;
+
+            // Gradiente del tallo
+            const gradient = ctx.createLinearGradient(centerX - 15, inicioY, centerX + 15, finY);
+            gradient.addColorStop(0, '#4A6741');
+            gradient.addColorStop(0.3, '#2F5023');
+            gradient.addColorStop(0.7, '#234019');
+            gradient.addColorStop(1, '#1A3014');
+
+            ctx.fillStyle = gradient;
+
+            // Tallo principal con curva natural
+            ctx.beginPath();
+            ctx.moveTo(centerX - 14, inicioY);
+            ctx.bezierCurveTo(
+                centerX - 20, inicioY + 180,
+                centerX - 10, finY - 120,
+                centerX - 12, finY
+            );
+            ctx.lineTo(centerX + 12, finY);
+            ctx.bezierCurveTo(
+                centerX + 10, finY - 120,
+                centerX + 20, inicioY + 180,
+                centerX + 14, inicioY
+            );
+            ctx.closePath();
+            ctx.fill();
+
+            // Borde del tallo
+            ctx.strokeStyle = '#1A3014';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Espinas más realistas
+            const numEspinas = 8;
+            for (let i = 0; i < numEspinas; i++) {
+                const progreso = (i + 1) / (numEspinas + 1);
+                const y = inicioY + (finY - inicioY) * progreso;
+                const lado = i % 2 === 0 ? 1 : -1;
+                const tamano = 15 + Math.random() * 8;
+
+                // Sombra de la espina
+                ctx.globalAlpha = opacidad * 0.3;
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.moveTo(centerX + lado * 14, y + 2);
+                ctx.lineTo(centerX + lado * (20 + tamano), y - 5);
+                ctx.lineTo(centerX + lado * 14, y + 8);
+                ctx.closePath();
+                ctx.fill();
+
+                // Espina
+                ctx.globalAlpha = opacidad;
+                const gradientEspina = ctx.createLinearGradient(
+                    centerX + lado * 14, y,
+                    centerX + lado * (20 + tamano), y - 5
+                );
+                gradientEspina.addColorStop(0, '#3D6B1F');
+                gradientEspina.addColorStop(1, '#5A4A2A');
+
+                ctx.fillStyle = gradientEspina;
+                ctx.beginPath();
+                ctx.moveTo(centerX + lado * 14, y);
+                ctx.lineTo(centerX + lado * (20 + tamano), y - 5);
+                ctx.lineTo(centerX + lado * 14, y + 6);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = '#2A3A1A';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Textura del tallo
+            ctx.globalAlpha = opacidad * 0.15;
+            for (let i = 0; i < 30; i++) {
+                const y = inicioY + Math.random() * (finY - inicioY);
+                const x = centerX + (Math.random() - 0.5) * 20;
+                ctx.strokeStyle = Math.random() > 0.5 ? 
+                    'rgba(255, 255, 255, 0.1)' : 
+                    'rgba(0, 0, 0, 0.2)';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y + Math.random() * 10);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // Dibujar hoja más detallada
+        function dibujarHoja(x, y, direccion, opacidad = 1) {
+            ctx.save();
+            ctx.globalAlpha = opacidad;
+            ctx.translate(x, y);
+            ctx.rotate(direccion);
+
+            // Gradiente de la hoja
+            const gradient = ctx.createLinearGradient(-45, -70, 45, 70);
+            gradient.addColorStop(0, '#5DBE5A');
+            gradient.addColorStop(0.3, '#2E7D32');
+            gradient.addColorStop(0.7, '#1B5E20');
+            gradient.addColorStop(1, '#33691E');
+
+            ctx.fillStyle = gradient;
+
+            // Forma de hoja con bordes serrados
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            
+            // Lado izquierdo con borde serrado
+            for (let i = 0; i <= 10; i++) {
+                const t = i / 10;
+                const baseX = -45 * Math.sin(t * Math.PI);
+                const baseY = -100 * t;
+                const dentado = (i % 2 === 0) ? -4 : 0;
+                ctx.lineTo(baseX + dentado, baseY);
+            }
+            
+            // Lado derecho con borde serrado
+            for (let i = 10; i >= 0; i--) {
+                const t = i / 10;
+                const baseX = 45 * Math.sin(t * Math.PI);
+                const baseY = -100 * t;
+                const dentado = (i % 2 === 0) ? 4 : 0;
+                ctx.lineTo(baseX + dentado, baseY);
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+
+            // Borde de la hoja
+            ctx.strokeStyle = '#1B5E20';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Vena central
+            ctx.strokeStyle = '#1B5E20';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -100);
+            ctx.stroke();
+
+            // Venas secundarias más realistas
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = opacidad * 0.7;
+            for (let i = 1; i <= 6; i++) {
+                const yPos = -i * 15;
+                const largo = 30 - i * 3;
+                
+                // Vena izquierda
+                ctx.beginPath();
+                ctx.moveTo(0, yPos);
+                ctx.quadraticCurveTo(-largo * 0.5, yPos - largo * 0.3, -largo, yPos - largo * 0.5);
+                ctx.stroke();
+                
+                // Vena derecha
+                ctx.beginPath();
+                ctx.moveTo(0, yPos);
+                ctx.quadraticCurveTo(largo * 0.5, yPos - largo * 0.3, largo, yPos - largo * 0.5);
+                ctx.stroke();
+            }
+
+            // Textura de la hoja
+            ctx.globalAlpha = opacidad * 0.2;
+            for (let i = 0; i < 20; i++) {
+                const tx = (Math.random() - 0.5) * 60;
+                const ty = -Math.random() * 90;
+                ctx.fillStyle = Math.random() > 0.5 ? 
+                    'rgba(255, 255, 255, 0.2)' : 
+                    'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(tx, ty, Math.random() * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        // Animación por etapas
+        const etapas = [
+            { nombre: 'Dibujando el tallo robusto...', duracion: 1.2 },
+            { nombre: 'Añadiendo hojas verdes...', duracion: 1 },
+            { nombre: 'Creando pétalos exteriores...', duracion: 1.5 },
+            { nombre: 'Pétalos intermedios...', duracion: 1.3 },
+            { nombre: 'Segunda capa intermedia...', duracion: 1.2 },
+            { nombre: 'Pétalos más internos...', duracion: 1.1 },
+            { nombre: 'Capa interna final...', duracion: 1 },
+            { nombre: 'Centro con estambres...', duracion: 1 },
+            { nombre: '¡Rosa hermosa completa! 🌹', duracion: 0.5 }
+        ];
+
+        function actualizarTextoProgreso() {
+            const textoElemento = document.getElementById('progressText');
+            if (etapaActual < etapas.length) {
+                textoElemento.textContent = etapas[etapaActual].nombre;
+            } else {
+                textoElemento.textContent = '¡Tu rosa perfecta está lista! 🌹✨';
+            }
+        }
+
+        function dibujarRosaAnimada() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const opacidad = Math.min(progresoEtapa, 1);
+
+            // Colores de pétalos (del más oscuro al más claro hacia el centro)
+            const colores = ['#8B0000', '#B22222', '#DC143C', '#FF1744', '#FF4569'];
+
+            // Tallo (etapa 0)
+            if (etapaActual >= 0) {
+                dibujarTallo(etapaActual === 0 ? opacidad : 1);
+            }
+
+            // Hojas (etapa 1)
+            if (etapaActual >= 1) {
+                const opHojas = etapaActual === 1 ? opacidad : 1;
+                dibujarHoja(centerX - 25, centerY + 280, -Math.PI / 3.5, opHojas);
+                dibujarHoja(centerX + 25, centerY + 420, Math.PI / 3.5, opHojas);
+            }
+
+            // Pétalos - múltiples capas para realismo
+            // Capa 1: Pétalos más externos (etapa 2)
+            if (etapaActual >= 2) {
+                dibujarCapaPetalos(10, 5, 80, 120, 0, colores[0], etapaActual === 2 ? opacidad : 1);
+            }
+
+            // Capa 2: Pétalos externos medios (etapa 3)
+            if (etapaActual >= 3) {
+                dibujarCapaPetalos(10, 3, 70, 105, Math.PI / 10, colores[1], etapaActual === 3 ? opacidad : 1);
+            }
+
+            // Capa 3: Pétalos intermedios (etapa 4)
+            if (etapaActual >= 4) {
+                dibujarCapaPetalos(8, 2, 60, 90, Math.PI / 8, colores[2], etapaActual === 4 ? opacidad : 1);
+            }
+
+            // Capa 4: Pétalos internos (etapa 5)
+            if (etapaActual >= 5) {
+                dibujarCapaPetalos(8, 1, 50, 75, 0, colores[3], etapaActual === 5 ? opacidad : 1);
+            }
+
+            // Capa 5: Pétalos más internos (etapa 6)
+            if (etapaActual >= 6) {
+                dibujarCapaPetalos(6, 0, 40, 60, Math.PI / 6, colores[4], etapaActual === 6 ? opacidad : 1);
+            }
+
+            // Centro (etapa 7)
+            if (etapaActual >= 7) {
+                dibujarCentro(etapaActual === 7 ? opacidad : 1);
+            }
+
+            // Continuar animación o completar
+            if (etapaActual < etapas.length) {
+                progresoEtapa += velocidadAnimacion / etapas[etapaActual].duracion;
+                if (progresoEtapa >= 1) {
+                    progresoEtapa = 0;
+                    etapaActual++;
+                    actualizarTextoProgreso();
+                }
+                requestAnimationFrame(dibujarRosaAnimada);
+            }
+        }
+
+        // Iniciar animación
+        window.addEventListener('load', () => {
+            actualizarTextoProgreso();
+            setTimeout(() => {
+                dibujarRosaAnimada();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
